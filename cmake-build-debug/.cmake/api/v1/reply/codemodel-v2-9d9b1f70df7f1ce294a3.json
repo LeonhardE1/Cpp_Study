@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.24"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Cpp_Study",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Answer_331::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Answer_331-Debug-093ef8f7a14463ce90e7.json",
+					"name" : "Answer_331",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Leetcode_2023_2::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Leetcode_2023_2-Debug-31bd83bdc9328fd6590c.json",
+					"name" : "Leetcode_2023_2",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "mysql_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-mysql_test-Debug-b19d49a7efda4c4a706f.json",
+					"name" : "mysql_test",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "F:/clion/Cpp_Study/cmake-build-debug",
+		"source" : "F:/clion/Cpp_Study"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}
