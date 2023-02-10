@@ -5,7 +5,8 @@ Created by Leonhard E on 2023/2/9.
 #include <mysql.h>
 #include <iostream>
 #include <iomanip>
-//#include <mysqlx/xdevapi>
+
+#define SQL_MAX 256		// sql语句字符数组最大值
 
 using namespace std;
 
@@ -15,6 +16,9 @@ MYSQL_ROW row;//一个行数据的类型安全(type-safe)的表示
 
 void exit(){
     cout << "感谢使用本系统" << endl;
+    //释放结果集合mysql句柄
+    mysql_free_result(res);
+    mysql_close(&mysql);
     std::system("pause");
     exit(0);
 }
@@ -33,17 +37,16 @@ void quire(){
     mysql_query(&mysql, "select * from time");
     res = mysql_store_result(&mysql);
     int cols = (int)mysql_num_fields(res); // 计算结果集中，列的个数
-    cout << setw(30) << left << "考试时间" << setw(30) << left << "课程名称"
-         << setw(30) << left << "已排地点" << setw(30) << left << "校区" << endl;
+    cout << "id" << "\t"
+         << setw(28) << left << "考试时间" << setw(28) << left << "课程名称"
+         << setw(28) << left << "已排地点" << setw(28) << left << "校区" << endl;
     while ((row = mysql_fetch_row(res))) {
-        for (int i = 0; i < cols; ++i) {
-            cout << setw(30) << left << row[i];
+        cout << row[0] << "\t";
+        for (int i = 1; i < cols; ++i) {
+            cout << setw(28) << left << row[i];
         }
         cout << endl;
     }
-    //释放结果集合mysql句柄
-    mysql_free_result(res);
-    mysql_close(&mysql);
 }
 void quire_name(){
     mysql_query(&mysql, "select * from time");
@@ -54,14 +57,16 @@ void quire_name(){
     cin >> str;
     int sum = 0;
     while ((row = mysql_fetch_row(res))) {
-        string flag(row[1]);
+        string flag(row[2]);
         if(flag.find(str) != string::npos){
             sum++;
             if(sum == 1)
-                cout << setw(30) << left << "考试时间" << setw(30) << left << "课程名称"
-                     << setw(30) << left << "已排地点" << setw(30) << left << "校区" << endl;
-            for (int i = 0; i < cols; ++i) {
-                cout << setw(30) << left << row[i];
+                cout << "id" << "\t"
+                     << setw(28) << left << "考试时间" << setw(28) << left << "课程名称"
+                     << setw(28) << left << "已排地点" << setw(28) << left << "校区" << endl;
+            cout << row[0] << "\t";
+            for (int i = 1; i < cols; ++i) {
+                cout << setw(28) << left << row[i];
             }
             cout << endl;
         }
@@ -72,21 +77,84 @@ void quire_name(){
     else{
         cout << "共有" << sum << "条相关记录满足条件,如上所示\n\n" << endl;
     }
-    //释放结果集合mysql句柄
-    mysql_free_result(res);
-    mysql_close(&mysql);
 }
 void modify(){
-    cout << "待开发" << endl;
+    char sql[SQL_MAX];	// sql语句
+    string str1;
+    string str2;
+    int id;
+    quire();
+    cout << "输入要修改的id" << endl;
+    cin >> id;
+    cout << "输入要修改的项目" << endl;
+    cin >> str1;
+    cout << "输入要修改的值" << endl;
+    cin >> str2;
+
+    // C语言组合字符串
+    snprintf(sql, SQL_MAX,
+             "UPDATE time SET %s = '%s' WHERE time_id = %d;", str1.c_str(), str2.c_str(), id);
+    printf("修改sql语句：%s\n", sql);
+
+    if (mysql_query(&mysql, sql)) {
+        printf("数据修改失败！失败原因：%s\n", mysql_error(&mysql));
+        return;
+    }
+    printf("修改表数据成功！\n");
 }
+
+void addTableData() {
+    char sql[SQL_MAX];		// 存储sql语句
+    string str1, str2, str3, str4;
+    int id;
+    cout << "输入考试时间" << endl;
+    cin >> str1;
+    cout << "输入课程名称" << endl;
+    cin >> str2;
+    cout << "输入已排地点" << endl;
+    cin >> str3;
+    cout << "输入校区" << endl;
+    cin >> str4;
+    cout << "输入id" << endl;
+    cin >> id;
+    snprintf(sql, SQL_MAX,
+             "INSERT INTO time(time_id, 考试时间, 课程名称, 已排地点, 校区) VALUES(%d, '%s', '%s', '%s', '%s');"
+              , id, str1.c_str(), str2.c_str(), str3.c_str(), str4.c_str());
+
+    if (mysql_query(&mysql, sql)) {
+        printf("插入表数据失败！失败原因：%s\n", mysql_error(&mysql));
+        return;
+    }
+    printf("插入表数据成功！\n");
+}
+
+void delTableData() {
+    char sql[SQL_MAX];		// 存储sql语句
+    quire();
+    cout << "输入要删除数据的id" << endl;
+    int id;
+    cin >> id;
+    // C语言字符串组合
+    snprintf(sql, SQL_MAX, "DELETE FROM time WHERE time_id = %d;", id);
+    printf("删除sql语句：%s\n", sql);
+
+    if (mysql_query(&mysql, sql)) {
+        printf("删除表数据失败！失败原因：%s\n", mysql_error(&mysql));
+        return;
+    }
+    printf("删除表数据成功！\n");
+}
+
 
 int main() {
     while (ConnectMysql()){
         cout << "-----大三上学期期末考试时间查询-----" << endl;
         cout << "-----      1.打印时间表     -----" << endl;
         cout << "-----      2.按名称查询     -----" << endl;
-        cout << "-----      3.修改或增删     -----" << endl;
-        cout << "-----      4.退出此系统     -----" << endl;
+        cout << "-----      3.修改旧数据     -----" << endl;
+        cout << "-----      4.增加新数据     -----" << endl;
+        cout << "-----      5.删除旧数据     -----" << endl;
+        cout << "-----      6.退出此系统     -----" << endl;
         cout << "-----大三上学期期末考试时间查询-----" << endl;
         int flag;
         cin >> flag;
@@ -96,6 +164,10 @@ int main() {
             case 2:quire_name();
                 break;
             case 3:modify();
+                break;
+            case 4:addTableData();
+                break;
+            case 5:delTableData();
                 break;
             default: exit();
         }
