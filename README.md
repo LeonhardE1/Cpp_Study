@@ -30,7 +30,7 @@ add_executable(Leetcode_2023_2 A3_Leetcode_2023/Leetcode_2023_2.cpp)
 2)  也可以使用mysql connector c++链接操作，但是我在这里没有将
 connector c++ 导入clion中，因此不对其介绍
 #### 2.inquire的简单介绍
-本文件是将mysql与c/c++进行了简单的链接使用，实现了一些基本的操作
+&ensp; &ensp; &ensp;本文件是将mysql与c/c++进行了简单的链接使用，实现了一些基本的操作
 例如：增删改除等操作,调用了一些基本的mysql.h中的函数
 
     mysql_num_fields()
@@ -40,3 +40,30 @@ connector c++ 导入clion中，因此不对其介绍
     mysql_options()
     mysql_init()
 具体内容可以参看inquire.cpp。
+### 第三章，算法学习:
+#### 1.前缀和:
+定义:\
+&ensp; &ensp; &ensp;前缀和可以简单理解为「数列的前 n 项的和」，
+是一种重要的预处理方式，能大大降低查询的时间复杂度。
+C++ 标准库中实现了前缀和函数 std::partial_sum
+
+```c++
+//关于在c++中使用partial_sum函数的例子，可以快速求前缀和
+//使用函数要包含头文件<numeric>
+#include <iostream>
+#include <vector>
+#include <numeric>
+int main(int argc, char **argv) 
+{  
+    std::vector<int> nums = { 1,2,3,4,5 };
+    std::vector<int> psum;
+    psum.resize(nums.size());
+    partial_sum(nums.begin(), nums.end(), psum.begin());
+    for (int num : psum) {
+        std::cout << num << "\t";
+    }
+    return 0;
+}
+```
+具体内容可以参照[前缀和](https://oi-wiki.org/basic/prefix-sum/#%E5%89%8D%E7%BC%80%E5%92%8C)
+或者Leetcode每日一题2023/2/14 -1124. 表现良好的最长时间段。

@@ -161,7 +161,7 @@ int fillCups(vector<int>& amount) {
     }
 }
 
-//TODO:2/11, 1138. 字母板上的路径
+//TODO:2/12, 1138. 字母板上的路径
 /**我们从一块字母板上的位置 (0, 0) 出发，该坐标对应的字符为 board[0][0]。
 在本题里，字母板为board = ["abcde", "fghij", "klmno", "pqrst", "uvwxy", "z"]，如下所示。
 我们可以按下面的指令规则行动：
@@ -199,8 +199,105 @@ string alphabetBoardPath(string target) {
     }
     return ans;
 }
+//TODO:2/13, 1234. 替换子串得到平衡字符串
+/**有一个只含有 'Q', 'W', 'E', 'R' 四种字符，且长度为 n 的字符串。
+假如在该字符串中，这四个字符都恰好出现 n/4 次，那么它就是一个「平衡字符串」。
+给你一个这样的字符串 s，请通过「替换一个子串」的方式，使原字符串 s 变成一个「平衡字符串」。
+你可以用和「待替换子串」长度相同的 任何 其他字符串来完成替换。
+请返回待替换子串的最小可能长度。
+如果原字符串自身就是一个平衡字符串，则返回 0。
+ */
+int count_char(const std::string &str, char c) {
+    int count = 0;
+    for (char ch : str) {
+        if (ch == c) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+bool judge(string str, unordered_map<char, int> my_Map, int flag){
+    for (auto x : my_Map) {
+        if(count_char(str, x.first) != x.second - flag)
+            return false;
+    }
+    return true;
+}
+
+int balancedString(string s) {
+    unordered_map<char, int> my_Map;
+    for (char ch : s) {
+       my_Map[ch]++;
+    }
+    int flag = s.length()/4;
+    int sum = 0;
+    // List of keys to delete
+    vector<char> keysToDelete;
+
+    for (auto x : my_Map) {
+        if(x.second > flag){
+            sum += (x.second - flag);
+        }
+        else{
+            keysToDelete.push_back(x.first);
+        }
+    }
+    // Deleting elements using a loop
+    for (int key : keysToDelete) {
+        auto it = my_Map.find(key);
+        if (it != my_Map.end()) {
+            my_Map.erase(it);
+        }
+    }
+    if(sum == 0)
+        return sum;
+    sum--;
+    while (sum++){
+        int i = 0;
+//        string str = s.substr(i, sum);
+        while (i + sum <= s.length()){
+            if(judge(s.substr(i, sum), my_Map, flag)){
+                return sum;
+            }
+            i++;
+        }
+    }
+    return sum;
+}
+//TODO:2//14, 1124. 表现良好的最长时间段
+/**给你一份工作时间表 hours，上面记录着某一位员工每天的工作小时数。
+我们认为当员工一天中的工作小时数大于 8 小时的时候，那么这一天就是「劳累的一天」。
+所谓「表现良好的时间段」，意味在这段时间内，「劳累的天数」是严格 大于「不劳累的天数」。
+请你返回「表现良好时间段」的最大长度。
+*/
+int longestWPI(vector<int>& hours) {
+    int n = hours.size();
+    int ans = 0;
+    //计算前缀和
+    for (int i = 0; i < hours.size(); ++i) {
+        if(hours[i] > 8)
+            hours[i] = 1;
+        else
+            hours[i] = -1;
+    }
+    vector<int> par_sum(n+1, 0);
+    partial_sum(hours.begin(), hours.end(), par_sum.begin() + 1);
+    //利用单调栈计算
+    stack<int> st;
+    st.push(par_sum[0]);
+    for (int j = 1; j <= n; ++j) {
+        if (par_sum[j] < par_sum[st.top()]) st.push(j); // 感兴趣的 j
+    }
+    for (int i = n; i; --i)
+        while (!st.empty() && par_sum[i] > par_sum[st.top()]) {
+            ans = max(ans, i - st.top()); // [栈顶,i) 可能是最长子数组
+            st.pop();
+        }
+    return ans;
+}
 int main() {
-    string target = "leet";
-    cout << alphabetBoardPath(target);
+    vector<int> hours = {6,6,6};
+    cout << longestWPI(hours);
     return 0;
 }
