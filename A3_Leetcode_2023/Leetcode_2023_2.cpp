@@ -159,8 +159,8 @@ int fillCups(vector<int>& amount) {
             sum++;
         }
     }
+    return sum;
 }
-
 //TODO:2/12, 1138. 字母板上的路径
 /**我们从一块字母板上的位置 (0, 0) 出发，该坐标对应的字符为 board[0][0]。
 在本题里，字母板为board = ["abcde", "fghij", "klmno", "pqrst", "uvwxy", "z"]，如下所示。
@@ -296,8 +296,197 @@ int longestWPI(vector<int>& hours) {
         }
     return ans;
 }
+
+//TODO: 2/15, 1250. 检查「好数组」
+/**给你一个正整数数组 nums，你需要从中任选一些子集，然后将子集中每一个数乘以一个 任意整数，并求出他们的和。
+假如该和结果为 1，那么原数组就是一个「好数组」，则返回 True；否则请返回 False。
+*/
+bool isGoodArray(vector<int>& nums) {
+    int max_gcd = nums[0];
+    for (int num : nums) {
+        max_gcd = gcd(max_gcd, num);
+    }
+    return max_gcd == 1;
+}
+//TODO: 2/16, 2341. 数组能形成多少数对
+/**给你一个下标从 0 开始的整数数组 nums 。在一步操作中，你可以执行以下步骤：
+//
+//从 nums 选出 两个 相等的 整数
+//从 nums 中移除这两个整数，形成一个 数对
+//请你在 nums 上多次执行此操作直到无法继续执行。
+//
+//返回一个下标从 0 开始、长度为 2 的整数数组 answer 作为答案，其中 answer[0] 是形成的数对数目，answer[1] 是对 nums 尽可能执行上述操作后剩下的整数数目。
+*/
+vector<int> numberOfPairs(vector<int>& nums) {
+    unordered_map<int ,int> my_Map;
+    vector<int> ans(2, 0);
+    for (auto x : nums) {
+        my_Map[x]++;
+        if(my_Map[x] == 1)
+            ans[1]++;
+        else{
+            ans[0]++;
+            ans[1]--;
+            my_Map[x] = 0;
+        }
+    }
+    return ans;
+}
+//TODO: 2/20, 2347. 最好的扑克手牌
+/**给你一个整数数组 ranks 和一个字符数组 suit 。你有 5 张扑克牌，第 i 张牌大小为 ranks[i] ，花色为 suits[i] 。
+//
+//下述是从好到坏你可能持有的 手牌类型 ：
+//
+//"Flush"：同花，五张相同花色的扑克牌。
+//"Three of a Kind"：三条，有 3 张大小相同的扑克牌。
+//"Pair"：对子，两张大小一样的扑克牌。
+//"High Card"：高牌，五张大小互不相同的扑克牌。
+//请你返回一个字符串，表示给定的 5 张牌中，你能组成的 最好手牌类型 。
+//
+//注意：返回的字符串 大小写 需与题目描述相同。
+*/
+string bestHand(vector<int>& ranks, vector<char>& suits) {
+    set<char> set_;
+    unordered_map<int,int> my_Map;
+    string ans;
+    for (char ch : suits) {
+        set_.emplace(ch);
+    }
+    if(set_.size() == 1)
+        return "Flush";
+    for(int rank : ranks) {
+        ++my_Map[rank];
+        if(my_Map[rank] == 2 && ans != "Three of a Kind") ans = "Pair";
+        if(my_Map[rank] >= 3) ans = "Three of a Kind";
+    }
+    return (ans.empty() ? "High Card" : ans);
+}
+//TODO: 2/21, 1326. 灌溉花园的最少水龙头数目
+/**在 x 轴上有一个一维的花园。花园长度为 n，从点 0 开始，到点 n 结束。
+花园里总共有 n + 1 个水龙头，分别位于 [0, 1, ..., n] 。
+给你一个整数 n 和一个长度为 n + 1 的整数数组 ranges ，其中 ranges[i] （下标从 0 开始）表示：如果打开点 i 处的水龙头，可以灌溉的区域为 [i -  ranges[i], i + ranges[i]] 。
+请你返回可以灌溉整个花园的 最少水龙头数目 。如果花园始终存在无法灌溉到的地方，请你返回 -1 。
+*/
+int minTaps(int n, vector<int>& ranges) {
+    int right_most[n + 1]; memset(right_most, 0, sizeof(right_most));
+    for (int i = 0; i <= n; ++i) {
+        int r = ranges[i];
+        if (i > r) right_most[i - r] = i + r; 
+        else right_most[0] = max(right_most[0], i + r);
+    }
+
+    int ans = 0;
+    int cur_right = 0; // 已建造的桥的右端点
+    int next_right = 0; // 下一座桥的右端点的最大值
+    for (int i = 0; i < n; ++i) { // 注意这里没有遍历到 n，因为它已经是终点了
+        next_right = max(next_right, right_most[i]);
+        if (i == cur_right) { // 到达已建造的桥的右端点
+            if (i == next_right) return -1; // 无论怎么造桥，都无法从 i 到 i+1
+            cur_right = next_right; // 造一座桥
+            ++ans;
+        }
+    }
+    return ans;
+}
+//TODO: 2/23 ,1238. 循环码排列
+/**给你两个整数 n 和 start。你的任务是返回任意 (0,1,2,,...,2^n-1) 的排列 p，并且满足：
+
+p[0] = start
+p[i] 和 p[i+1] 的二进制表示形式只有一位不同
+p[0] 和 p[2^n -1] 的二进制表示形式也只有一位不同
+*/
+vector<int> circularPermutation(int n, int start) {
+    int g[1 << n];
+    int j = 0;
+    for (int i = 0; i < 1 << n; ++i) {
+        g[i] = i ^ (i >> 1);
+        if (g[i] == start) {
+            j = i;
+        }
+    }
+    vector<int> ans;
+    for (int i = j; i < j + (1 << n); ++i) {
+        ans.push_back(g[i % (1 << n)]);
+    }
+    return ans;
+}
+//TODO: 2/24, 2357. 使数组中所有元素都等于零
+/**给你一个非负整数数组 nums 。在一步操作中，你必须：
+选出一个正整数 x ，x 需要小于或等于 nums 中 最小 的 非零 元素。
+nums 中的每个正整数都减去 x。
+返回使 nums 中所有元素都等于 0 需要的 最少 操作数。
+*/
+int minimumOperations(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    int sum = 0;
+    int i = 0;
+    while(nums[nums.size() - 1] != 0){
+        sort(nums.begin(), nums.end());
+        i = 0;
+        int x = nums[i];
+        while(x == 0){
+            i++;
+            x = nums[i];
+        }
+        for (int & num : nums) {
+            if(num != 0)
+            num -= x;
+        }
+        sum++;
+    }
+    return sum;
+}
+//TODO: 2/25 ,1247. 交换字符使得字符串相同
+/**有两个长度相同的字符串 s1 和 s2，且它们其中 只含有 字符 "x" 和 "y"，你需要通过「交换字符」的方式使这两个字符串相同。
+
+每次「交换字符」的时候，你都可以在两个字符串中各选一个字符进行交换。
+
+交换只能发生在两个不同的字符串之间，绝对不能发生在同一个字符串内部。也就是说，我们可以交换 s1[i] 和 s2[j]，但不能交换 s1[i] 和 s1[j]。
+
+最后，请你返回使 s1 和 s2 相同的最小交换次数，如果没有方法能够使得这两个字符串相同，则返回 -1 。
+ */
+int minimumSwap(string s1, string s2) {
+    int cnt[2]{};
+    for (int i = 0, n = s1.length(); i < n; ++i)
+        if (s1[i] != s2[i])
+            ++cnt[s1[i] % 2]; // x 和 y ASCII 值的二进制最低位不同
+    int d = cnt[0] + cnt[1];
+    return d % 2 != 0 ? -1 : d / 2 + cnt[0] % 2;
+}
+//TODO: 2/27 ,1144. 递减元素使数组呈锯齿状
+/**给你一个整数数组 nums，每次 操作 会从中选择一个元素并 将该元素的值减少 1。
+
+如果符合下列情况之一，则数组 A 就是 锯齿数组：
+
+每个偶数索引对应的元素都大于相邻的元素，即 A[0] > A[1] < A[2] > A[3] < A[4] > ...
+或者，每个奇数索引对应的元素都大于相邻的元素，即 A[0] < A[1] > A[2] < A[3] > A[4] < ...
+返回将数组 nums 转换为锯齿数组所需的最小操作次数。
+*/
+int movesToMakeZigzag(vector<int>& nums) {
+    vector<int> copy=nums;
+    int cnt1=0;
+    int cnt2=0;
+    for(int i=0;i<nums.size();++i)
+        if(i%2)
+        {
+            if(i+1<nums.size()&&nums[i]>=nums[i+1])
+                cnt1+=nums[i]-(nums[i+1]-1),nums[i]=nums[i+1]-1;
+            if(i>0&&nums[i]>=nums[i-1])
+                cnt1+=nums[i]-(nums[i-1]-1),nums[i]=nums[i-1]-1;
+        }
+    nums=copy;
+    for(int i=0;i<nums.size();++i)
+        if(i%2==0)
+        {
+            if(i+1<nums.size()&&nums[i]>=nums[i+1])
+                cnt2+=nums[i]-(nums[i+1]-1),nums[i]=nums[i+1]-1;
+            if(i>0&&nums[i]>=nums[i-1])
+                cnt2+=nums[i]-(nums[i-1]-1),nums[i]=nums[i-1]-1;
+        }
+    return min(cnt1,cnt2);
+}
 int main() {
-    vector<int> hours = {6,6,6};
-    cout << longestWPI(hours);
+    vector <int> nums = {9,6,1,6,2};
+    cout << movesToMakeZigzag(nums);
     return 0;
 }
